@@ -4,8 +4,12 @@ import db from "./config/db.js"
 
 const app = express()
 
+// Enable reading data from forms
+app.use(express.urlencoded({extended: true}))
+
 try {
     await db.authenticate()
+    db.sync()
     console.log('Conexión existosa a la base de datos')
 } catch (error) {
     console.log(error);
