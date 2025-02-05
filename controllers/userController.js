@@ -60,8 +60,11 @@ const register = async (req, res) => {
         token: generateId()
     })
 
-    
-
+    // confirmation message    
+    res.render('templates/message', {
+        page: 'Cuenta Creada Correctamente',
+        message: 'Hemos enviado un Email de Confirmación, presiona en el enlace'
+    })
 }
 
 const forgotPasswordForm = ((req, res) => {
