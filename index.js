@@ -1,11 +1,17 @@
 import express from "express"
-import usuarioRoutes from './routes/usuarioRoutes.js'
+import csurf from "csurf"
+import cookieParser from "cookie-parser"
+import usuarioRoutes from './routes/userRoutes.js'
 import db from "./config/db.js"
 
 const app = express()
 
 // Enable reading data from forms
 app.use(express.urlencoded({extended: true}))
+
+app.use(cookieParser())
+
+app.use(csurf({cookie: true}))
 
 try {
     await db.authenticate()
@@ -22,7 +28,7 @@ app.use(express.static('public'))
 
 app.use('/auth', usuarioRoutes)
 
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.listen(port, () => {
     console.log(`El servidor esta funcionando en el puerto ${port}`);

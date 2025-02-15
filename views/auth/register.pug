@@ -14,21 +14,22 @@ block content
         .mt-8.mx-auto.max-w-md
             .bg-white.py-8.px-4.shadow 
                 form.space-y-5(method="POST" action="/auth/register" noValidate)
+                    input(type="hidden" name="_csrf" value= csrfToken)
                     div
-                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="name") Tu Nombre 
-                        input#name.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Tu nombre" type="text" name="name" value= user ? user.name : '')
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="name") Your Name 
+                        input#name.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Your Name" type="text" name="name" value= user ? user.name : '')
                     div
-                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="email") Email de Registro 
-                        input#email.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Tu email" type="email" name="email" value= user ? user.email : '')
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="email") Registration email 
+                        input#email.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Your Email" type="email" name="email" value= user ? user.email : '')
                     div
                         label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="password") Password 
-                        input#password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Tu password" type="password" name="password")
+                        input#password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Your Password" type="password" name="password")
                     div
-                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="repeat_password") Repetir Password 
-                        input#repeat_password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Repite tu password" type="password" name="repeat_password")
+                        label.block.text-sm.uppercase.text-gray-500.mb-3.font-bold(for="repeat_password") Repeat Password
+                        input#repeat_password.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Repeat Password" type="password" name="repeat_password")
 
                     .flex.items-center.justify-between 
-                        a.text-gray-500.text-xs(href="/auth/login") ¿Ya tienes una cuenta? Inicia Sesión
-                        a.text-gray-500.text-xs(href="/auth/forgot-password") Olvide mi contraseña   
+                        a.text-gray-500.text-xs(href="/auth/login") Already have an account? Sign in
+                        a.text-gray-500.text-xs(href="/auth/forgot-password") I forgot my password   
                     
-                    input(class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer" type="submit" value="Crear Cuenta")
+                    input(class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer" type="submit" value="Create Account")
