@@ -19,15 +19,11 @@ const registerForm = ((req, res) => {
 // create user
 const register = async (req, res) => {
     //validation
-    console.log("reqsss", req.body.password);
-
-    await check('name').notEmpty().withMessage('El campo nombre es obligatorio').run(req)
-    await check('email').isEmail().withMessage('El campo nombre es obligatorio').run(req)
-    await check('password').isLength({ min: 6 }).withMessage('El campo password debe ser de almenos 6 carácteres').run(req)
-    await check('repeat_password').equals(req.body.password).withMessage('Las contraseñas no coinciden').run(req)
+    await check('name').notEmpty().withMessage('The name field is required').run(req)
+    await check('email').isEmail().withMessage('The email field is required').run(req)
+    await check('password').isLength({ min: 6 }).withMessage('The password field must be at least 6 characters long.').run(req)
+    await check('repeat_password').equals(req.body.password).withMessage('Passwords do not match').run(req)
     let result = validationResult(req)
-
-
 
     if (!result.isEmpty()) {
         return res.render('auth/register', {
@@ -78,7 +74,7 @@ const register = async (req, res) => {
     })
 }
 
- //confirm account
+ // confirm account
 const confirm = async (req, res) => {
     const { token } = req.params
 
@@ -105,14 +101,58 @@ const confirm = async (req, res) => {
 
 const forgotPasswordForm = ((req, res) => {
     res.render('auth/forgot-password', {
-        page: 'Recover your access to Bienes raíces'
+        page: 'Recover your access to Bienes raíces',
+        csrfToken: req.csrfToken()
+
     })
 })
+
+const resetPassword = async (req, res) => {
+    //validation
+    await check('email').isEmail().withMessage('The email is not valid').run(req)
+    let result = validationResult(req)
+
+    if (!result.isEmpty()) {
+        return res.render('auth/forgot-password', {
+            page: 'Recover your access to Bienes raíces',
+            errors: result.array(),
+            csrfToken: req.csrfToken(),
+        })
+    }
+
+    // search  user
+
+    const { email } = req.body
+    const user = await User.findOne({where: {email}})
+    if (!user) {
+        return res.render('auth/forgot-password', {
+            page: 'Recover your access to Bienes raíces',
+            errors: [{msg: 'User not found'}],
+            csrfToken: req.csrfToken(),
+        })
+    }
+
+    user.token = generateId()
+    await user.save()
+
+    // Send email
+}
+
+const checkToken = () => {
+
+}
+
+const newPassword = () => {
+    
+}
 
 export {
     loginForm,
     registerForm,
     confirm,
     forgotPasswordForm,
-    register
+    register,
+    resetPassword,
+    checkToken,
+    newPassword
 }

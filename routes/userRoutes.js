@@ -1,13 +1,21 @@
 import express from "express"
-import { loginForm, registerForm, forgotPasswordForm, register, confirm } from "../controllers/userController.js"
+import { loginForm, registerForm, forgotPasswordForm, register, confirm, resetPassword } from "../controllers/userController.js"
 
 const router = express.Router()
 
 router.get('/login', loginForm)
 router.get('/register', registerForm)
+
 router.get('/forgot-password', forgotPasswordForm)
+router.post('/forgot-password', resetPassword)
+
 router.get('/confirm/:token', confirm)
+
 router.post('/register', register)
+
+// save new password
+router.get('/forgot-password/token:', checkToken)
+router.post('/forgot-password/token:', newPassword)
     
 
 export default router
