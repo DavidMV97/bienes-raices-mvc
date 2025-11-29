@@ -1,7 +1,7 @@
 import express from "express"
 import csurf from "csurf"
 import cookieParser from "cookie-parser"
-import usuarioRoutes from './routes/userRoutes.js'
+import userRoutes from './routes/userRoutes.js'
 import db from "./config/db.js"
 
 const app = express()
@@ -26,7 +26,7 @@ app.set('views', './views')
 
 app.use(express.static('public'))
 
-app.use('/auth', usuarioRoutes)
+app.use('/auth', userRoutes)
 
 const port = process.env.PORT || 3000
 

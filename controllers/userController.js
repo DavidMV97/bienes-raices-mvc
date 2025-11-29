@@ -1,7 +1,8 @@
 import { check, validationResult } from 'express-validator'
 import User from "../models/UserModel.js"
 import { generateId } from '../helpers/tokens.js'
-import { registerEmail } from '../helpers/emails.js'
+import { registerEmail, emailForgotPassword } from '../helpers/emails.js'
+import bcrypt from 'bcrypt'
 
 const loginForm = ((req, res) => {
     res.render('auth/login', {
@@ -9,7 +10,7 @@ const loginForm = ((req, res) => {
     })
 })
 
-const registerForm = ((req, res) => {    
+const registerForm = ((req, res) => {
     res.render('auth/register', {
         page: 'Create account',
         csrfToken: req.csrfToken()
@@ -74,11 +75,11 @@ const register = async (req, res) => {
     })
 }
 
- // confirm account
+// confirm account
 const confirm = async (req, res) => {
     const { token } = req.params
 
-    const user = await User.findOne({ where: {token}})
+    const user = await User.findOne({ where: { token } })
 
     if (!user) {
         return res.render('auth/confirm-account', {
@@ -123,11 +124,11 @@ const resetPassword = async (req, res) => {
     // search  user
 
     const { email } = req.body
-    const user = await User.findOne({where: {email}})
+    const user = await User.findOne({ where: { email } })
     if (!user) {
         return res.render('auth/forgot-password', {
             page: 'Recover your access to Bienes raíces',
-            errors: [{msg: 'User not found'}],
+            errors: [{ msg: 'User not found' }],
             csrfToken: req.csrfToken(),
         })
     }
@@ -136,14 +137,64 @@ const resetPassword = async (req, res) => {
     await user.save()
 
     // Send email
+    emailForgotPassword({
+        email: user.email,
+        name: user.name,
+        token: user.token
+    })
+
+    // confirmation message    
+    res.render('templates/message', {
+        page: 'Reset your password',
+        message: 'We have sent an email with the instructions'
+    })
 }
 
-const checkToken = () => {
+const checkToken = async (req, res) => {
 
+    const { token } = req.params;
+
+    const user = await User.findOne({ where: { token } })
+    if (!user) {
+        return res.render('auth/confirm-account', {
+            page: 'Reset your password',
+            message: 'There was an error validating the information, try again.',
+            error: true
+        })
+    }
+
+    res.render('auth/reset-password', {
+        page: 'Reset your password',
+        csrfToken: req.csrfToken()
+    })
 }
 
-const newPassword = () => {
+const newPassword = async (req, res) => {
+    // validate
+    await check('password').isLength({ min: 6 }).withMessage('The password field must be at least 6 characters long.').run(req)
+    let result = validationResult(req)
+
+    if (!result.isEmpty()) {
+        return res.render('auth/reset-password', {
+            page: 'Reset your password',
+            csrfToken: req.csrfToken(),
+            errors: result.array()
+        })
+    }
+
+    const {token} = req.params
+    const {password} = req.body
+    const user = await User.findOne({where: {token}})
     
+    // hash new password
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(password, salt)
+    user.token = null
+    await user.save()
+    res.render('auth/confirm-account', {
+        page: 'Password Reset',
+        message: 'The password was saved correctly'
+    })
 }
 
 export {

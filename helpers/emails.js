@@ -50,14 +50,15 @@ const emailForgotPassword = async (data) => {
         html: `
             <p>Hello ${name}, You have requested to reset your password in Bienesraices.com </p>
             <p>Follow the link below to generate a new password: 
-            <a href="${process.env.BACKEND_URL}:${process.env.PORT ?? 3000}/auth/confirm/${token}">Confirm account</a>
+            <a href="${process.env.BACKEND_URL}:${process.env.PORT ?? 3000}/auth/forgot-password/${token}">Reset password</a>
             </p>
-            <p>If you did not create this account you can ignore the message</p>
+            <p>If you do not request a password change, you can ignore this message.</p>
             `
     })
 
 }
 
 export {
-    registerEmail
+    registerEmail,
+    emailForgotPassword
 }
