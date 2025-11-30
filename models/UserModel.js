@@ -20,11 +20,15 @@ const User = db.define('users', {
     confirm: DataTypes.BOOLEAN
 }, {
     hooks: {
-        beforeCreate: async function(user){
+        beforeCreate: async function (user) {
             const salt = await bcrypt.genSalt(10)
             user.password = await bcrypt.hash(user.password, salt)
         }
     }
 })
+
+User.prototype.checkPassword = function(password){
+    return bcrypt.compareSync(password, this.password)
+}
 
 export default User

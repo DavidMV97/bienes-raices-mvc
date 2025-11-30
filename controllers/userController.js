@@ -1,14 +1,71 @@
 import { check, validationResult } from 'express-validator'
 import User from "../models/UserModel.js"
-import { generateId } from '../helpers/tokens.js'
+import { generateId, generateJWT } from '../helpers/tokens.js'
 import { registerEmail, emailForgotPassword } from '../helpers/emails.js'
 import bcrypt from 'bcrypt'
 
 const loginForm = ((req, res) => {
     res.render('auth/login', {
-        page: 'Login'
+        page: 'Login',
+        csrfToken: req.csrfToken()
     })
 })
+
+const authenticateUser = async (req, res) => {
+    await check('email').isEmail().withMessage('The email field is required').run(req)
+    await check('password').notEmpty().withMessage('The password field is required').run(req)
+
+
+    let result = validationResult(req)
+
+    if (!result.isEmpty()) {
+        return res.render('auth/login', {
+            page: 'Login',
+            errors: result.array(),
+            csrfToken: req.csrfToken()
+        })
+    }
+
+    const { email, password } = req.body
+
+    const user = await User.findOne({ where: { email } })
+    if (!user) {
+        return res.render('auth/login', {
+            page: 'Login',
+            csrfToken: req.csrfToken(),
+            errors: [{ msg: 'User not found' }]
+        })
+    }
+
+    // check confirmed user
+    if (!user.confirm) {
+        return res.render('auth/login', {
+            page: 'Login',
+            csrfToken: req.csrfToken(),
+            errors: [{ msg: 'Your account has not been confirmed' }]
+        })
+    }
+
+    // check password
+    if (!user.checkPassword(password)) {
+        return res.render('auth/login', {
+            page: 'Login',
+            csrfToken: req.csrfToken(),
+            errors: [{ msg: 'Invalid password' }]
+        })
+    }
+
+    const token = generateJWT(user.id)
+    console.log(token);
+    
+    //save token
+    return res.cookie('_token', token, {
+        httpOnly: true,
+        //secure: true,
+        //sameSite: true
+    }).redirect('/my-properties')
+
+}
 
 const registerForm = ((req, res) => {
     res.render('auth/register', {
@@ -24,6 +81,7 @@ const register = async (req, res) => {
     await check('email').isEmail().withMessage('The email field is required').run(req)
     await check('password').isLength({ min: 6 }).withMessage('The password field must be at least 6 characters long.').run(req)
     await check('repeat_password').equals(req.body.password).withMessage('Passwords do not match').run(req)
+
     let result = validationResult(req)
 
     if (!result.isEmpty()) {
@@ -182,10 +240,10 @@ const newPassword = async (req, res) => {
         })
     }
 
-    const {token} = req.params
-    const {password} = req.body
-    const user = await User.findOne({where: {token}})
-    
+    const { token } = req.params
+    const { password } = req.body
+    const user = await User.findOne({ where: { token } })
+
     // hash new password
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(password, salt)
@@ -199,6 +257,7 @@ const newPassword = async (req, res) => {
 
 export {
     loginForm,
+    authenticateUser,
     registerForm,
     confirm,
     forgotPasswordForm,
