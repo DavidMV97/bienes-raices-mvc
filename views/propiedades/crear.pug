@@ -1,5 +1,9 @@
 extends ../layout/index
 
+block styles
+    link(rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css")
+
+
 block content
     .py-10
         h1.text-4xl.my-10.font-extrabold.text-center Bienes
@@ -51,6 +55,8 @@ block content
                                 - let wc = 1;
                                     while wc < 5
                                         option(value=n) #{wc++}
+
+                    #map.h-96
 
 block scripts
     script(src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js")
